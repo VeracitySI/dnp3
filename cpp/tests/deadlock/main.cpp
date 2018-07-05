@@ -19,8 +19,9 @@ int main()
 {
 	const uint32_t FILTERS = levels::NOTHING;
 
-	while(1)
+	for(int i = 0; i < 100000; ++i)
 	{
+		// create an outstation
 		auto manager2 = std::make_unique<DNP3Manager>(3, ConsoleLogger::Create());
 		auto channel2 = manager2->AddTCPServer("server", FILTERS, ServerAcceptMode::CloseNew, "127.0.0.1", 20000, PrintingChannelListener::Create());
 		OutstationStackConfig config(DatabaseSizes::AllTypes(1));
@@ -29,9 +30,9 @@ int main()
 		auto outstation = channel2->AddOutstation("outstation", SuccessCommandHandler::Create(), DefaultOutstationApplication::Create(), config);
 		outstation->Enable();
 
+		// create a master
 		auto manager = std::make_unique<DNP3Manager>(3, ConsoleLogger::Create());
-		auto channel = manager->AddTCPClient("tcpclient", FILTERS, ChannelRetry(TimeDuration::Seconds(0), TimeDuration::Seconds(0)),
-								"127.0.0.1", "127.0.0.1", 20000, PrintingChannelListener::Create());
+		auto channel = manager->AddTCPClient("tcpclient", FILTERS, ChannelRetry(TimeDuration::Seconds(0), TimeDuration::Seconds(0)), "127.0.0.1", "127.0.0.1", 20000, PrintingChannelListener::Create());
 		MasterStackConfig stackConfig;
 		stackConfig.link.LocalAddr = 1;
 		stackConfig.link.RemoteAddr = 10;
@@ -41,7 +42,6 @@ int main()
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
-		integrityScan.reset();
 		master.reset();
 		channel.reset();
 		manager.reset();
