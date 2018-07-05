@@ -28,9 +28,10 @@ namespace asiodnp3
 DNP3Manager::DNP3Manager(
     uint32_t concurrencyHint,
     std::shared_ptr<openpal::ILogHandler> handler,
+	const std::string& loggerName,
     std::function<void()> onThreadStart,
     std::function<void()> onThreadExit) :
-	impl(std::make_unique<DNP3ManagerImpl>(concurrencyHint, handler, onThreadStart, onThreadExit))
+	impl(std::make_unique<DNP3ManagerImpl>(concurrencyHint, handler, loggerName, onThreadStart, onThreadExit))
 {
 
 }

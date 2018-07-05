@@ -52,6 +52,7 @@ public:
 	DNP3ManagerImpl(
 	    uint32_t concurrencyHint,
 	    std::shared_ptr<openpal::ILogHandler> handler,
+		const std::string& loggerName,
 	    std::function<void()> onThreadStart,
 	    std::function<void()> onThreadExit
 	);

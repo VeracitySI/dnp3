@@ -75,9 +75,12 @@ void ThreadPool::Shutdown()
 	{
 		isShutdown = true;
 		infiniteTimer.cancel();
+		int threadnum = 0;
 		for (auto& thread : threads)
 		{
+			FORMAT_LOG_BLOCK(this->logger, logflags::INFO, "Joining thread (%d)", threadnum);
 			thread->join();
+			++threadnum;
 		}
 	}
 }

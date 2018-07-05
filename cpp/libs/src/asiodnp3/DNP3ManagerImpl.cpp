@@ -46,10 +46,11 @@ namespace asiodnp3
 DNP3ManagerImpl::DNP3ManagerImpl(
     uint32_t concurrencyHint,
     std::shared_ptr<openpal::ILogHandler> handler,
+	const std::string& loggerName,
     std::function<void()> onThreadStart,
     std::function<void()> onThreadExit
 ) :
-	logger(handler, "manager", opendnp3::levels::ALL),
+	logger(handler, loggerName, opendnp3::levels::ALL),
 	io(std::make_shared<asiopal::IO>()),
 	threadpool(logger, io, concurrencyHint, onThreadStart, onThreadExit),
 	resources(ResourceManager::Create())

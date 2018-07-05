@@ -529,6 +529,8 @@ MContext::TaskState MContext::OnResponse_WaitForResponse(const APDUResponseHeade
 		return TaskState::WAIT_FOR_RESPONSE;
 	case(IMasterTask::ResponseResult::OK_REPEAT) :
 		return StartTask_TaskReady();
+	case(IMasterTask::ResponseResult::OK_FINAL) :
+		FORMAT_LOG_BLOCK(logger, flags::INFO, "Completed task: %s", this->activeTask->Name());
 	default:
 		// task completed or failed, either way go back to idle
 		this->CompleteActiveTask();
