@@ -36,7 +36,7 @@ void start_master(DNP3Manager& manager)
 int main()
 {
 
-	for(int i = 0; i < 1000; ++i)
+	for(int i = 0; i < 1000000; ++i)
 	{
 	    std::cout << "start iteration: " << i << std::endl;
 

@@ -187,10 +187,17 @@ void MasterSchedulerBackend::RestartTimeoutTimer()
 		}
 	}
 
-	this->taskStartTimeout.Restart(min, [this]()
+	if(min.IsMax())
 	{
-		this->TimeoutTasks();
-	});
+		this->taskStartTimeout.Cancel();
+	}
+	else
+	{
+		this->taskStartTimeout.Restart(min, [this]()
+		{
+			this->TimeoutTasks();
+		});
+	}
 }
 
 void MasterSchedulerBackend::TimeoutTasks()
