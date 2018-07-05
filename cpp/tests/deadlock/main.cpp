@@ -42,6 +42,7 @@ int main()
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
+/*
 		master.reset();
 		channel.reset();
 		manager.reset();
@@ -49,6 +50,7 @@ int main()
 		outstation.reset();
 		channel2.reset();
 		manager2.reset();
+*/
 	}
 
 	return 0;
