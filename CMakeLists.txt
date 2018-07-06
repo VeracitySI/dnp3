@@ -250,6 +250,11 @@ if(DNP3_TEST)
   set_target_properties(testasiodnp3 PROPERTIES FOLDER tests)
   add_test(testasiodnp3 testasiodnp3)
 
+  # ----- deadlock test -----
+  add_executable (testdeadlock ./cpp/tests/deadlock/main.cpp)
+  target_link_libraries (testdeadlock LINK_PUBLIC asiodnp3 ${PTHREAD})
+  set_target_properties(testdeadlock PROPERTIES FOLDER tests)
+
   # ----- fuzz tests -----
   if(DNP3_DECODER)
     add_executable (fuzzdnp3 ./cpp/tests/fuzz/onefile.cpp ./cpp/tests/fuzz/fuzzdnp3.cpp)
