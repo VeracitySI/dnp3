@@ -14,7 +14,7 @@ using namespace asiopal;
 using namespace asiodnp3;
 using namespace opendnp3;
 
-const uint32_t FILTERS = levels::NORMAL;
+const uint32_t FILTERS = levels::NOTHING;
 const uint32_t NUM_THREADS = 1;
 
 void start_outstation(DNP3Manager& manager)
@@ -35,20 +35,20 @@ void start_master(DNP3Manager& manager)
 int main()
 {
 
-	for(int i = 0; i < 1000000; ++i)
+	for(int i = 0; i < 10000; ++i)
 	{
 	    std::cout << "start iteration: " << i << std::endl;
 
-            DNP3Manager manager1(NUM_THREADS, ConsoleLogger::Create());
-            DNP3Manager manager2(NUM_THREADS, ConsoleLogger::Create());
+        DNP3Manager manager1(NUM_THREADS, ConsoleLogger::Create());
+        DNP3Manager manager2(NUM_THREADS, ConsoleLogger::Create());
 
-            start_outstation(manager1);
+        start_outstation(manager1);
 	    start_master(manager2);
 
 	    // give the two sides sufficient time to connect
 	    std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
-            std::cout << "end iteration: " << i << std::endl;
+        std::cout << "end iteration: " << i << std::endl;
 
 	    // shutdown manager2 followed by manager1
 	}

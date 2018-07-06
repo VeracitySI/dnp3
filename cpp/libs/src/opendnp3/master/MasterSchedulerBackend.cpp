@@ -72,7 +72,7 @@ void MasterSchedulerBackend::SetRunnerOffline(const IMasterTaskRunner& runner)
 
 	if (this->current && checkForOwnership(this->current)) this->current.Clear();
 
-	// move erase idiom
+	// remove all tasks associated with this runner (move erase idiom)
 	this->tasks.erase(std::remove_if(this->tasks.begin(), this->tasks.end(), checkForOwnership), this->tasks.end());
 
 	this->PostCheckForTaskRun();
@@ -100,10 +100,10 @@ bool MasterSchedulerBackend::CompleteCurrentFor(const IMasterTaskRunner& runner)
 
 void MasterSchedulerBackend::Demand(const std::shared_ptr<IMasterTask>& task)
 {
-	auto callback = [this, task]()
+	auto callback = [task, self = shared_from_this()]()
 	{
 		task->SetMinExpiration();
-		this->CheckForTaskRun();
+		self->CheckForTaskRun();
 	};
 
 	this->executor->Post(callback);
@@ -119,9 +119,9 @@ void MasterSchedulerBackend::PostCheckForTaskRun()
 	if (!this->taskCheckPending)
 	{
 		this->taskCheckPending = true;
-		this->executor->Post([this]()
+		this->executor->Post([self = shared_from_this()]()
 		{
-			this->CheckForTaskRun();
+			self->CheckForTaskRun();
 		});
 	}
 }
@@ -164,9 +164,9 @@ bool MasterSchedulerBackend::CheckForTaskRun()
 	}
 	else
 	{
-		auto callback = [this]()
+		auto callback = [self = shared_from_this()]()
 		{
-			this->CheckForTaskRun();
+			self->CheckForTaskRun();
 		};
 
 		this->taskTimer.Restart(best_task->task->ExpirationTime(), callback);
@@ -187,10 +187,18 @@ void MasterSchedulerBackend::RestartTimeoutTimer()
 		}
 	}
 
-	this->taskStartTimeout.Restart(min, [this]()
+	if(min.IsMax())
 	{
-		this->TimeoutTasks();
-	});
+		// no need to have a timeout timer if there are not tasks to timeout
+		this->taskStartTimeout.Cancel();
+	}
+	else
+	{
+		this->taskStartTimeout.Restart(min, [self = shared_from_this()]()
+		{
+			self->TimeoutTasks();
+		});
+	}
 }
 
 void MasterSchedulerBackend::TimeoutTasks()
