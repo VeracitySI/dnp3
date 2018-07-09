@@ -20,10 +20,12 @@
  */
 #include "asiodnp3/ConsoleLogger.h"
 
+#include <ctime>
 #include <chrono>
 #include <sstream>
 #include <iostream>
 #include <assert.h>
+#include <string.h>
 
 #include <opendnp3/LogLevels.h>
 
@@ -37,11 +39,16 @@ namespace asiodnp3
 void ConsoleLogger::Log(const openpal::LogEntry& entry)
 {
 	auto time = std::chrono::high_resolution_clock::now();
-	auto num = duration_cast<milliseconds>(time.time_since_epoch()).count();
+	auto ms  = duration_cast<milliseconds>(time.time_since_epoch());
+        seconds s = duration_cast<seconds>(ms);
+        std::time_t t = s.count();
+        std::size_t fractionalSeconds = ms.count() % 1000;
+        char *timeStamp;
+        timeStamp = strtok(ctime(&t), "\n");
 
 	ostringstream oss;
 
-	oss << "ms(" << num << ") " << LogFlagToString(entry.filters.GetBitfield());
+	oss << timeStamp << " (" << ms.count() << ") : " << LogFlagToString(entry.filters.GetBitfield());
 	oss << " " << entry.loggerid;
 	if (printLocation)
 	{
