@@ -41,11 +41,31 @@ int main(int argc, char* argv[])
 	// You can add all the comms logging by uncommenting below
 	const uint32_t FILTERS = levels::NORMAL | levels::ALL_APP_COMMS;
 
+        auto c_ip = std::string("0.0.0.0");
+	auto c_port = atoi(std::string("20000").c_str());
+
+	// Explicit addition of <IP> and <PORT>
+	// arguments from the command-line.
+	// The expected usage is : <program> <IP> <PORT>
+	// Including 1 parameter will override the <IP>
+	// Including 2 parameters will override the <IP> and <PORT>
+	// Otherwise , the defaults will be used with no
+	// overrides
+	if(argc==2) {
+	    c_ip = std::string(argv[1]);
+	}
+	else if (argc == 3) {
+	    c_ip = std::string(argv[1]);
+	    c_port = atoi(std::string(argv[2]).c_str());
+	}
+
+
+
 	// This is the main point of interaction with the stack
 	DNP3Manager manager(1, ConsoleLogger::Create());
 
 	// Connect via a TCPClient socket to a outstation
-	auto channel = manager.AddTCPClient("tcpclient", FILTERS, ChannelRetry::Default(), "127.0.0.1", "0.0.0.0", 20000, PrintingChannelListener::Create());
+	auto channel = manager.AddTCPClient("tcpclient", FILTERS, ChannelRetry::Default(), c_ip , "0.0.0.0", c_port, PrintingChannelListener::Create());
 
 	// The master config object for a master. The default are
 	// useable, but understanding the options are important.

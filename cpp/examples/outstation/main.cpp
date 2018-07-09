@@ -33,6 +33,7 @@
 
 #include <string>
 #include <thread>
+#include <stdlib.h>
 #include <iostream>
 
 using namespace std;
@@ -66,6 +67,23 @@ int main(int argc, char* argv[])
 	// Specify what log levels to use. NORMAL is warning and above
 	// You can add all the comms logging by uncommenting below.
 	const uint32_t FILTERS = levels::NORMAL | levels::ALL_COMMS;
+	auto s_ip = std::string("0.0.0.0");
+	auto s_port = atoi(std::string("20000").c_str());
+
+	// Explicit addition of <IP> and <PORT>
+	// arguments from the command-line.
+	// The expected usage is : <program> <IP> <PORT>
+	// Including 1 parameter will override the <IP>
+	// Including 2 parameters will override the <IP> and <PORT>
+	// Otherwise , the defaults will be used with no
+	// overrides
+	if(argc==2) {
+	    s_ip = std::string(argv[1]);
+	}
+	else if (argc == 3) {
+	    s_ip = std::string(argv[1]);
+	    s_port = atoi(std::string(argv[2]).c_str());
+	}
 
 	// This is the main point of interaction with the stack
 	// Allocate a single thread to the pool since this is a single outstation
@@ -73,7 +91,7 @@ int main(int argc, char* argv[])
 	DNP3Manager manager(1, ConsoleLogger::Create());
 
 	// Create a TCP server (listener)
-	auto channel = manager.AddTCPServer("server", FILTERS, ServerAcceptMode::CloseExisting, "0.0.0.0", 20000, PrintingChannelListener::Create());
+	auto channel = manager.AddTCPServer("server", FILTERS, ServerAcceptMode::CloseExisting, s_ip, s_port, PrintingChannelListener::Create());
 
 	// The main object for a outstation. The defaults are useable,
 	// but understanding the options are important.
