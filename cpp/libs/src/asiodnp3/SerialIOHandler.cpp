@@ -92,6 +92,7 @@ void SerialIOHandler::ResetState()
 	retrytimer.Cancel();
 }
 
+
 }
 
 

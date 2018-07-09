@@ -236,7 +236,7 @@ void IOHandler::OnNewChannel(const std::shared_ptr<asiopal::IAsyncChannel>& chan
 
 	this->channel = channel;
 
-	this->channel->SetCallbacks(shared_from_this());
+	this->channel->SetCallbacks(this->GetSelf());
 
 	this->UpdateListener(ChannelState::OPEN);
 

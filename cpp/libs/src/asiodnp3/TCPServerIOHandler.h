@@ -34,7 +34,7 @@
 namespace asiodnp3
 {
 
-class TCPServerIOHandler final : public IOHandler
+class TCPServerIOHandler final : public IOHandler, public std::enable_shared_from_this<TCPServerIOHandler>
 {
 	class Server final : public asiopal::TCPServer
 	{
@@ -89,6 +89,11 @@ public:
 	);
 
 protected:
+
+	std::shared_ptr<IOHandler> GetSelf() override
+	{
+		return std::shared_ptr<IOHandler>();
+	}
 
 	virtual void ShutdownImpl() override;
 	virtual void BeginChannelAccept() override;

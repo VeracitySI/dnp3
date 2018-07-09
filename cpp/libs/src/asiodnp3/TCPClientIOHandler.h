@@ -32,7 +32,7 @@
 namespace asiodnp3
 {
 
-class TCPClientIOHandler final : public IOHandler
+class TCPClientIOHandler final : public IOHandler, public std::enable_shared_from_this<TCPClientIOHandler>
 {
 
 public:
@@ -58,6 +58,8 @@ public:
 	);
 
 protected:
+
+	virtual std::shared_ptr<IOHandler> GetSelf() override { return shared_from_this(); }
 
 	virtual void ShutdownImpl() override;
 	virtual void BeginChannelAccept() override;

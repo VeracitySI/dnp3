@@ -35,12 +35,12 @@ void start_master(DNP3Manager& manager)
 int main()
 {
 
-	for(int i = 0; i < 10000; ++i)
+	for(int i = 0; i < 1000; ++i)
 	{
 	    std::cout << "start iteration: " << i << std::endl;
 
-        DNP3Manager manager1(NUM_THREADS, ConsoleLogger::Create());
         DNP3Manager manager2(NUM_THREADS, ConsoleLogger::Create());
+        DNP3Manager manager1(NUM_THREADS, ConsoleLogger::Create());
 
         start_outstation(manager1);
 	    start_master(manager2);

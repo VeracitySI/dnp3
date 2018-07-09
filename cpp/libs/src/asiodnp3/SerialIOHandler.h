@@ -33,7 +33,7 @@
 namespace asiodnp3
 {
 
-class SerialIOHandler final : public IOHandler
+class SerialIOHandler final : public IOHandler, public std::enable_shared_from_this<SerialIOHandler>
 {
 
 public:
@@ -57,6 +57,11 @@ public:
 	);
 
 protected:
+
+	std::shared_ptr<IOHandler> GetSelf() override
+	{
+		return std::shared_ptr<IOHandler>();
+	}
 
 	virtual void ShutdownImpl() override;
 	virtual void BeginChannelAccept() override;

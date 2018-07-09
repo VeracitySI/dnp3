@@ -69,28 +69,32 @@ void TCPClientIOHandler::StartConnect(const std::shared_ptr<asiopal::TCPClient>&
 {
 	FORMAT_LOG_BLOCK(this->logger, openpal::logflags::INFO, "Connecting to: %s", this->remote.address.c_str());
 
-	auto cb = [ =, self = shared_from_this()](const std::shared_ptr<Executor>& executor, asio::ip::tcp::socket socket, const std::error_code & ec) -> void
+	auto cb = [self = shared_from_this(), delay](const std::shared_ptr<Executor>& executor, asio::ip::tcp::socket socket, const std::error_code & ec) -> void
 	{
 		if (ec)
 		{
-			FORMAT_LOG_BLOCK(this->logger, openpal::logflags::WARN, "Error Connecting: %s", ec.message().c_str());
+			FORMAT_LOG_BLOCK(self->logger, openpal::logflags::WARN, "Error Connecting: %s", ec.message().c_str());
 
-			++this->statistics.numOpenFail;
+			++self->statistics.numOpenFail;
 
-			const auto newDelay = this->retry.NextDelay(delay);
+			const auto newDelay = self->retry.NextDelay(delay);
 
-			auto cb = [self, newDelay, client, this]()
+			// if the client has been reset, we're shutting down so don't retry
+			if(self->client)
 			{
-				this->StartConnect(client, newDelay);
-			};
+				auto retry_cb = [self, newDelay]()
+				{
+					self->StartConnect(self->client, newDelay);
+				};
 
-			this->retrytimer.Start(delay, cb);
+				self->retrytimer.Start(delay, retry_cb);
+			}
 		}
 		else
 		{
-			FORMAT_LOG_BLOCK(this->logger, openpal::logflags::INFO, "Connected to: %s", this->remote.address.c_str());
+			FORMAT_LOG_BLOCK(self->logger, openpal::logflags::INFO, "Connected to: %s", self->remote.address.c_str());
 
-			this->OnNewChannel(SocketChannel::Create(executor, std::move(socket)));
+			self->OnNewChannel(SocketChannel::Create(executor, std::move(socket)));
 		}
 
 	};
