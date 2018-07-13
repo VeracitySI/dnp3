@@ -167,6 +167,12 @@ if(DNP3_DEMO)
   target_link_libraries (master-gprs-demo LINK_PUBLIC asiodnp3 ${PTHREAD})
   set_target_properties(master-gprs-demo PROPERTIES FOLDER demos)
 
+  # ----- master-counter demo executable -----
+  add_executable(master-counter-demo ./cpp/examples/master-counter/main.cpp)
+  target_link_libraries (master-counter-demo LINK_PUBLIC asiodnp3 ${PTHREAD})
+  set_target_properties(master-counter-demo PROPERTIES FOLDER demos)
+
+
   # ----- outstation demo executable -----
   add_executable(outstation-demo ./cpp/examples/outstation/main.cpp)
   target_link_libraries (outstation-demo LINK_PUBLIC asiodnp3 ${PTHREAD})
