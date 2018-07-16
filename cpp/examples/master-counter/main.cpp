@@ -41,6 +41,12 @@ int main(int argc, char* argv[])
 	// You can add all the comms logging by uncommenting below
 	const uint32_t FILTERS = levels::NORMAL | levels::ALL_APP_COMMS;
 
+	// Operation Counters
+	auto numOpen = 0;
+	auto numOpenFail = 0;
+	auto numClose = 0;
+	auto numAttempts = 0;
+
         auto c_ip = std::string("0.0.0.0");
 	auto c_port = atoi(std::string("20000").c_str());
 	auto c_count = atoi(std::string("5").c_str());
@@ -71,7 +77,6 @@ int main(int argc, char* argv[])
 		 cnt < c_count;
 	         cnt++)
 	{		
-	    std::cout<< "attempt: " <<  cnt << std::endl;
             // This is the main point of interaction with the stack
 	    DNP3Manager manager(1, ConsoleLogger::Create());
 
@@ -101,29 +106,38 @@ int main(int argc, char* argv[])
 	    // name, log level, command acceptor, and config info. This
 	    // returns a thread-safe interface used for sending commands.
 	    auto master = channel->AddMaster(
-	                                     "master",											// id for logging
-	                                     PrintingSOEHandler::Create(),						// callback for data processing
-	                                     asiodnp3::DefaultMasterApplication::Create(),		// master application instance
-	                                     stackConfig										// stack configuration
+	                                     "master", // id for logging
+	                                     PrintingSOEHandler::Create(), // callback for data processing
+	                                     asiodnp3::DefaultMasterApplication::Create(), // master application instance
+	                                     stackConfig // stack configuration
 	                  );
 
 
 	    // do an integrity poll (Class 3/2/1/0) once per minute
-	    auto integrityScan = master->AddClassScan(ClassField::AllClasses(), TimeDuration::Minutes(1));
+	    auto integrityScan = master->AddClassScan(ClassField::AllClasses(), TimeDuration::Seconds(1));
 
 	    // do a Class 1 exception poll every 5 seconds
-	    auto exceptionScan = master->AddClassScan(ClassField(ClassField::CLASS_1), TimeDuration::Seconds(2));
+	    auto exceptionScan = master->AddClassScan(ClassField(ClassField::CLASS_1), TimeDuration::Seconds(1));
 
 	    // Enable the master. This will start communications.
 	    master->Enable();
-	    auto link_statistics = channel->GetStatistics();
-	    std::cout << std::endl;
-	    std::cout << "attempts: " << c_count << " "
-		      << "open: " << link_statistics.channel.numOpen << " " 
-		      << "fail: " << link_statistics.channel.numOpenFail << " " 
-		      << "close:" << link_statistics.channel.numClose << " " 
-		      << std::endl;
+
+	    auto linkStatistics = channel->GetStatistics();
+	    numAttempts += 1;
+	    numOpen     += linkStatistics.channel.numOpen;
+	    numOpenFail += linkStatistics.channel.numOpenFail;
+	    numClose    += linkStatistics.channel.numClose;
+
+	    manager.Shutdown();
+            
+
         }
+
+        std::cout << "attempts: " << numAttempts  << " "
+	          << "open: " << numOpen << " " 
+		  << "fail: " << numOpenFail << " " 
+		  << "close:" << numClose << " " 
+		  << std::endl;
+
 	return 0;
 }
-
