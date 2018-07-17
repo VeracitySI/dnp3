@@ -40,10 +40,11 @@ int main(int argc, char* argv[])
 {
 	// Specify what log levels to use. NORMAL is warning and above
 	// You can add all the comms logging by uncommenting below
-	const uint32_t FILTERS = levels::NORMAL | levels::ALL_APP_COMMS;
+	const uint32_t FILTERS = levels::NOTHING;
 
         auto c_ip = std::string("0.0.0.0");
 	auto c_port = atoi(std::string("20000").c_str());
+	auto c_pause_seconds = atoi(std::string("10").c_str());
 
 	// Explicit addition of <IP> and <PORT>
 	// arguments from the command-line.
@@ -59,14 +60,17 @@ int main(int argc, char* argv[])
 	    c_ip = std::string(argv[1]);
 	    c_port = atoi(std::string(argv[2]).c_str());
 	}
-
-
+        else if (argc == 4) {
+	    c_ip = std::string(argv[1]);
+	    c_port = atoi(std::string(argv[2]).c_str());
+	    c_pause_seconds = atoi(std::string(argv[3]).c_str());
+	}
 
 	// This is the main point of interaction with the stack
-	DNP3Manager manager(1, ConsoleLogger::Create());
+	DNP3Manager manager(1, nullptr);
 
 	// Connect via a TCPClient socket to a outstation
-	auto channel = manager.AddTCPClient("tcpclient", FILTERS, ChannelRetry::Default(), c_ip , "0.0.0.0", c_port, PrintingChannelListener::Create());
+	auto channel = manager.AddTCPClient("tcpclient", FILTERS, ChannelRetry::Default(), c_ip , "0.0.0.0", c_port, nullptr);
 
 	// The master config object for a master. The default are
 	// useable, but understanding the options are important.
@@ -107,19 +111,19 @@ int main(int argc, char* argv[])
 	bool shouldRun = true;
 	while (shouldRun)
 	{
-	    sleep(10);
-            auto link_statistics = channel->GetStatistics();
-            std::cout << std::endl;
-	    std::cout << "open: " << link_statistics.channel.numOpen << " " 
-                      << "fail: " << link_statistics.channel.numOpenFail << " " 
-		      << "close:" << link_statistics.channel.numClose << " " 
-		      << "received:" << link_statistics.channel.numBytesRx << " "
-                      << "bytes_transmitted:" << link_statistics.channel.numBytesTx << " "
-		      << "frames_transmitted:" << link_statistics.channel.numLinkFrameTx << " "
-                      << std::endl;
-	    shouldRun = false;
+            sleep(c_pause_seconds);
+            shouldRun = false;
 	}
-	
+        
+	auto link_statistics = channel->GetStatistics();
+        std::cout << std::endl;
+	std::cout << link_statistics.channel.numOpen << "," 
+                  << link_statistics.channel.numOpenFail << ","
+	          << link_statistics.channel.numClose << ","
+		  << link_statistics.channel.numBytesRx << ","
+                  << link_statistics.channel.numBytesTx << ","
+		  << link_statistics.channel.numLinkFrameTx
+                  << std::endl;
 	return 0;
 }
 
